@@ -28,6 +28,8 @@ func processFile(filename string, shardID, shardCount uint, projectName string, 
 	}
 	defer gz.Close()
 
+	ignoreRe := regexp.MustCompile(`^(Help|Draft|Category|File|User|Talk|(S|s)pecial|Wikipedia|Template)(_talk)?:`)
+
 	projectStr := fmt.Sprintf("%s ", projectName)
 	inProject := false
 	scanner := bufio.NewScanner(gz)
@@ -42,6 +44,9 @@ func processFile(filename string, shardID, shardCount uint, projectName string, 
 		pageTitle, count, _ := Decode(scanner.Text())
 		csum := adler32.Checksum([]byte(pageTitle))
 		if csum%uint32(shardCount) != uint32(shardID) {
+			continue
+		}
+		if ignoreRe.MatchString(pageTitle) {
 			continue
 		}
 		pageCounts[pageTitle] += count
@@ -113,7 +118,7 @@ func main() {
 	}
 
 	if *verbose {
-		fmt.Printf("Pages: %d", len(pageCounts))
+		fmt.Printf("Pages: %d\n", len(pageCounts))
 	}
 	filename := fmt.Sprintf("%s/pagecounts-%03d-of-%03d", *outputDir, *shardID, *shardCount)
 	writeCounts(filename, pageCounts)
