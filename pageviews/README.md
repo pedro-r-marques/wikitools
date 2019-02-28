@@ -1,0 +1,1 @@
+This package processes hourly pageview counts from wikipedia stats dumps and generates a file with montly pageview statistics.
