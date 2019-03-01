@@ -9,6 +9,8 @@ import (
 	"strconv"
 )
 
+const maxLineSize = 1 * 1024 * 1024 * 1024
+
 var (
 	inputFile       string
 	outputFile      string
@@ -27,6 +29,7 @@ func initFlags() {
 
 func newFilterFromOpts() *Filter {
 	rules := make([]FilterRule, 0)
+	rules = makeNamespaceFilter(rules)
 	if indexFilter != "" {
 		indexSet := loadIndexSet(indexFilter)
 		rules = makeIndexFilter(rules, indexSet)
@@ -52,6 +55,7 @@ func processFile(inp, outp, indexOut *os.File) {
 		defer indexWr.Flush()
 	}
 	scanner := bufio.NewScanner(rd)
+	scanner.Buffer(make([]byte, maxLineSize), maxLineSize)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if nline, indices, err := filter.FilterLine(line); err == nil {

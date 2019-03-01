@@ -77,3 +77,16 @@ func makePageTitleFilter(rules []FilterRule, pageTitles map[string]bool) []Filte
 	rules = append(rules, FilterRule{Index: 2, Filter: pageFilterFn})
 	return rules
 }
+
+func makeNamespaceFilter(rules []FilterRule) []FilterRule {
+	nsFilterFn := func(value string) bool {
+		ns, err := strconv.Atoi(value)
+		if err != nil {
+			fmt.Println("Invalid index value: ", value)
+			return false
+		}
+		return ns == 0
+	}
+	rules = append(rules, FilterRule{Index: 1, Filter: nsFilterFn})
+	return rules
+}
