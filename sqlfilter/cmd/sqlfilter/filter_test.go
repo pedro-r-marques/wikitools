@@ -26,7 +26,7 @@ func TestFilter(t *testing.T) {
 func TestFilterParentisis(t *testing.T) {
 	line := "INSERT INTO `page` VALUES " +
 		"(10,0,'AccessibleComputing','',1,0,0.33167112649574004,'20190116190543','20190105021557',854851586,94,'wikitext',NULL)," +
-		"(1271290,7,'Apaches_Ba-keitz-ogie,_(The_Yellow_Coyote),_called_Dutchy_Chiricahua_scout_(F19052_DPLW).jpg','',0,0,0.298012287594,'20180619101909','20180619101909',846533886,1314,'wikitext',NULL)" +
+		"(1271290,7,'Apaches_Ba-keitz-ogie,_(The_Yellow_Coyote),_called_Dutchy_Chiricahua_scout_(F19052_DPLW).jpg','',0,0,0.298012287594,'20180619101909','20180619101909',846533886,1314,'wikitext',NULL)," +
 		"(26809,0,'StarCraft_(video_game)','',0,0,0.8594902091282329,'20190120003623','20190120020413',875950064,77587,'wikitext',NULL)," +
 		"(3375,0,'Love_and_Theft_(Bob_Dylan_album)','',0,0,0.0622300403772202,'20190119185452','20190119192334',877501164,20608,'wikitext',NULL);"
 	filterFn := func(value string) bool {

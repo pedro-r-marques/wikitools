@@ -43,7 +43,10 @@ class IntegrationTest(unittest.TestCase):
         ]
         with open(os.path.join(self._tmpdir, 'page-output.sql'), 'r') as fp:
             lines = [l.strip() for l in fp.readlines()]
-            self.assertListEqual(lines, expected)
+            self.assertListEqual(expected, lines)
+        with open(os.path.join(self._tmpdir, 'indices.txt'), 'r') as fp:
+            lines = [l.strip() for l in fp.readlines()]
+            self.assertListEqual(["12"], lines)
 
     def test_pagelinks_filter(self):
         env = {
@@ -64,7 +67,7 @@ class IntegrationTest(unittest.TestCase):
         ]
         with open(os.path.join(self._tmpdir, 'pagelinks-output.sql'), 'r') as fp:
             lines = [l.strip() for l in fp.readlines()]
-            self.assertListEqual(lines, expected)
+            self.assertListEqual(expected, lines)
     
        
 if __name__ == '__main__':

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -50,9 +49,8 @@ func (f Filter) filterValue(value string) (bool, int) {
 	return true, ix
 }
 
-// TODO: errors in this function should propage up
 // split a sequence of values separated by parenthesis: (any),...,(any)
-func splitValues(values string) []string {
+func splitValues(values string) ([]string, error) {
 	result := make([]string, 0)
 	var start int
 	var inQuotes bool
@@ -76,11 +74,11 @@ func splitValues(values string) []string {
 		switch values[i] {
 		case '(':
 			if open {
-				log.Println("open parenthesis: already open")
-				log.Println(i, len(result))
+				return nil, fmt.Errorf("open parenthesis: already open")
 			}
-			if len(result) != sep {
-				log.Printf("open parenthesis: sep: %d len: %d\n", sep, len(result))
+			if sep != len(result) {
+				fmt.Println(result)
+				return nil, fmt.Errorf("values: %d, sep: %d, index: %d", len(result), sep, i)
 			}
 			start = i + 1
 			open = true
@@ -93,16 +91,19 @@ func splitValues(values string) []string {
 			}
 		}
 	}
-	return result
+	return result, nil
 }
 
 // FilterLine filters a sql insert line
 func (f Filter) FilterLine(line string) (string, []int, error) {
 	m := f.lineRe.FindStringSubmatch(line)
 	if m == nil {
-		return "", nil, fmt.Errorf("Invalid line")
+		return line, nil, nil
 	}
-	values := splitValues(m[2])
+	values, err := splitValues(m[2])
+	if err != nil {
+		return "", nil, err
+	}
 	nvalues := make([]string, 0, len(values))
 	indices := make([]int, 0, len(values))
 	for _, v := range values {
@@ -110,6 +111,9 @@ func (f Filter) FilterLine(line string) (string, []int, error) {
 			nvalues = append(nvalues, "("+v+")")
 			indices = append(indices, ix)
 		}
+	}
+	if len(nvalues) == 0 {
+		return "", nil, nil
 	}
 	nline := fmt.Sprintf("INSERT INTO `%s` VALUES %s;", m[1], strings.Join(nvalues, ","))
 	return nline, indices, nil
