@@ -33,13 +33,13 @@ func initFlags() {
 
 func newFilterFromOpts() *Filter {
 	rules := make([]FilterRule, 0)
-	rules = makeNamespaceFilter(rules)
 	if optIndexFilter != "" {
 		indexSet := loadIndexSet(optIndexFilter)
 		rules = makeIndexFilter(rules, indexSet)
 	}
 
 	if optPageTitleFilter != "" {
+		rules = makeNamespaceFilter(rules)
 		pageTitles := loadPageTitles(optPageTitleFilter)
 		rules = makePageTitleFilter(rules, pageTitles)
 	}

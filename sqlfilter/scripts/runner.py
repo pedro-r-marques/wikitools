@@ -63,7 +63,15 @@ def main():
            '--input={0}/{1}-pagelinks.sql'.format(args.input_dir, basename),
            '--page-filter={0}'.format(args.page_filter),
            '--index-filter={0}/page-indices.txt'.format(args.output_dir),
-           '--output={0}/{1}-filtered-pagelinks.sql'.format(args.output_dir, basename)]
+           '--output={0}/{1}-filtered-pagelinks.sql'.format(args.output_dir, basename),
+           '--chunk-size=1000']
+    p = subprocess.Popen(cmd, env=env)
+    p.wait()
+
+    cmd = ['sqlfilter',
+           '--input={0}/{1}-categorylinks.sql'.format(args.input_dir, basename),
+           '--index-filter={0}/page-indices.txt'.format(args.output_dir),
+           '--output={0}/{1}-filtered-categorylinks.sql'.format(args.output_dir, basename)]
     p = subprocess.Popen(cmd, env=env)
     p.wait()
 
