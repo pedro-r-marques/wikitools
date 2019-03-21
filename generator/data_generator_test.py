@@ -24,11 +24,11 @@ class DataGeneratorTest(unittest.TestCase):
     @staticmethod
     def _generate_matrix(shape, datapoints):
         matrix = dok_matrix(shape)
-        for _ in xrange(datapoints):
+        for _ in range(datapoints):
             while True:
                 row = random.randint(0, shape[0] - 1)
                 col = random.randint(0, shape[1] - 1)
-                if matrix.has_key((row, col)):
+                if matrix.get((row, col)):
                     continue
                 matrix[row, col] = 1.0
                 break
@@ -37,16 +37,16 @@ class DataGeneratorTest(unittest.TestCase):
     def _assert_matrix_equal(self, matrix, X):
         self.assertEqual(matrix.size, X.shape[0])
         for row, col in X:
-            self.assertTrue(matrix.has_key((row, col)))
+            self.assertTrue(matrix.get((row, col)))
 
     def _generate_testdata(self, matrix, n_shards=16):
         matrix = matrix.tocoo()
-        block_size = (matrix.shape[0] - 1) / n_shards + 1
-        for shard_id in xrange(n_shards):
+        block_size = int((matrix.shape[0] - 1) / n_shards) + 1
+        for shard_id in range(n_shards):
             filename = os.path.join(
                 self._tmpdir, 'data.bin.{0:05d}-of-{1:05d}'.format(shard_id, n_shards))
-            with open(filename, 'w') as file:
-                for i in xrange(matrix.size):
+            with open(filename, 'wb') as file:
+                for i in range(matrix.size):
                     row = matrix.row[i]
                     if row < shard_id * block_size or row >= (shard_id+1) * block_size:
                         continue
@@ -90,10 +90,10 @@ class DataGeneratorTest(unittest.TestCase):
     def _shard_count(self, matrix, n_shards, n, X, y):
         if n > 0:
             return
-        block_size = (matrix.shape[0] - 1) / n_shards + 1
+        block_size = int((matrix.shape[0] - 1) / n_shards) + 1
         shards = set()
         for v in X[:, 0]:
-            shard_id = int(v) / block_size
+            shard_id = int(v / block_size)
             shards.add(shard_id)
         self._obs_shards = shards
 
@@ -103,7 +103,7 @@ class DataGeneratorTest(unittest.TestCase):
         gen = DataGenerator(self._tmpdir, 4, batch_size=64,
                             shuffle=True, shard_merge=True, chunk_size=128)
         obs = partial(self._shard_count, matrix, 4)
-        X, y = DataGeneratorTest._collect_data(gen, obs)
+        X, _ = DataGeneratorTest._collect_data(gen, obs)
         self._assert_matrix_equal(matrix, X)
         self.assertEqual(len(self._obs_shards), 4)
 
@@ -113,9 +113,25 @@ class DataGeneratorTest(unittest.TestCase):
         gen = DataGenerator(self._tmpdir, 4, batch_size=64,
                             shard_merge=False, chunk_size=128)
         obs = partial(self._shard_count, matrix, 4)
-        X, y = DataGeneratorTest._collect_data(gen, obs)
+        X, _ = DataGeneratorTest._collect_data(gen, obs)
         self._assert_matrix_equal(matrix, X)
         self.assertEqual(len(self._obs_shards), 1)
+
+    def test_no_partial(self):
+        matrix = DataGeneratorTest._generate_matrix((100, 100), 999)
+        self._generate_testdata(matrix, 4)
+        gen = DataGenerator(self._tmpdir, 4, batch_size=64, chunk_size=16, shard_merge=True, allow_partial=False)
+        self.assertEqual(len(gen), 15)
+        X, _ = DataGeneratorTest._collect_data(gen)
+        self.assertEqual(X.shape[0], 15 * 64)
+    
+    def test_multiple_sizes(self):
+        for datapoints in [99, 999, 3333, 4444, 5050, 6060, 9099]:
+            matrix = DataGeneratorTest._generate_matrix((100, 100), datapoints)
+            self._generate_testdata(matrix, 8)
+            gen = DataGenerator(self._tmpdir, 8, batch_size=64, shard_merge=True, chunk_size=7)
+            X, _ = DataGeneratorTest._collect_data(gen)
+            self._assert_matrix_equal(matrix, X)
 
 
 if __name__ == '__main__':
