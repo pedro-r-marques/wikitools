@@ -1,7 +1,7 @@
 import setuptools
 
 with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+    requirements = [pkg for pkg in f.read().splitlines() if not pkg.startswith('git')]
 
 setuptools.setup(name='wiki_entity_vec',
                  author='Pedro Marques',
