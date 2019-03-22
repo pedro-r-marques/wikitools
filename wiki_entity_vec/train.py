@@ -3,8 +3,13 @@ import os
 import sys
 
 import numpy as np
-from model.model import make_model # pylint: disable=import-error
-from util import data_generator # pylint: disable=no-name-in-module
+
+if __name__ == '__main__':
+    curdir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.append(os.path.dirname(curdir))
+
+from wiki_entity_vec.model.model import make_model
+from wiki_entity_vec.util import data_generator
 
 from tensorflow import keras
 from tensorflow.keras import backend as K # pylint: disable=import-error
