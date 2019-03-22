@@ -13,7 +13,7 @@ import numpy as np
 
 from tensorflow import keras
 
-from dictionary import Dictionary
+from .dictionary import Dictionary
 
 
 class Dataset(object):

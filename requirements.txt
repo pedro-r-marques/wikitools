@@ -1,0 +1,5 @@
+numpy
+tensorflow
+scipy
+matplotlib
+git+https://github.com/pedro-r-marques/keras-opt
