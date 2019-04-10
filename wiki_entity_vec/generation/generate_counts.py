@@ -2,6 +2,15 @@
 # 
 # outlinks: select count(*) from pagelinks where pl_from = 534366;
 # inlinks: select count(*) from pagelinks where pl_from_namespace = 0 and pl_namespace = 0 and pl_title = 'Barack_Obama';
+
+# TODO(roque): This should be writen as:
+# SELECT page_title FROM
+#   (SELECT page_id, page_title,
+#     (SELECT count(*) FROM pagelinks WHERE pl_namespace = page_namespace AND pl_title = page_title) AS inlinks,
+#     (SELECT count(*) FROM pagelinks WHERE pl_from = page_id) AS olinks
+#    FROM page) AS aux
+#   WHERE inlinks + olinks >= 50;
+
 from __future__ import generators, print_function
 
 import argparse
